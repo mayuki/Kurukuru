@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Authors>Mayuki Sawatari</Authors>
+    <Company></Company>
+    <Copyright>Copyright © 2017-present Mayuki Sawatari</Copyright>
+    <PackageProjectUrl>https://github.com/mayuki/Kurukuru</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/mayuki/Kurukuru</RepositoryUrl>
+    <PackageTags>CLI Terminal</PackageTags>
+    <Description>Spinners for Command Line Interface</Description>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+</Project>
