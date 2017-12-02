@@ -13,21 +13,11 @@ namespace Kurukuru
         private int _frameIndex;
         private bool _enabled;
 
+        public bool Stopped { get; private set; }
         public SymbolDefinition SymbolSucceed { get; set; } = new SymbolDefinition("✔", "O");
         public SymbolDefinition SymbolFailed { get; set; } = new SymbolDefinition("✖", "X");
         public SymbolDefinition SymbolWarn { get; set; } = new SymbolDefinition("⚠", "[!]");
         public SymbolDefinition SymbolInfo { get; set; } = new SymbolDefinition("ℹ", "[i]");
-
-        public class SymbolDefinition
-        {
-            public string Default { get; }
-            public string Fallback { get; }
-            public SymbolDefinition(string defaultValue, string fallback)
-            {
-                Default = defaultValue;
-                Fallback = fallback;
-            }
-        }
 
         public ConsoleColor? Color { get; set; }
         public string Text { get; set; }
@@ -69,6 +59,8 @@ namespace Kurukuru
             if (_task != null) throw new InvalidOperationException("Spinner is already running");
 
             ConsoleHelper.SetCursorVisibility(false);
+
+            Stopped = false;
 
             _task = Task.Run(async () =>
             {
@@ -116,6 +108,7 @@ namespace Kurukuru
 
             Color = color ?? Color;
             Text = text ?? Text;
+            Stopped = true;
 
             _pattern = _fallbackPattern = new Pattern(new[] { symbol ?? " " }, 1000);
             Render();
@@ -147,37 +140,60 @@ namespace Kurukuru
 
         public static void Start(string text, Action action, Pattern pattern = null, Pattern fallbackPattern = null)
         {
+            Start(text, _ => action(), pattern, fallbackPattern);
+        }
+
+        public static void Start(string text, Action<Spinner> action, Pattern pattern = null, Pattern fallbackPattern = null)
+        {
             using (var spinner = new Spinner(text, pattern, fallbackPattern: fallbackPattern))
             {
                 spinner.Start();
 
                 try
                 {
-                    action();
-                    spinner.Succeed();
+                    action(spinner);
+
+                    if (!spinner.Stopped)
+                    {
+                        spinner.Succeed();
+                    }
                 }
                 catch
                 {
-                    spinner.Fail();
+                    if (!spinner.Stopped)
+                    {
+                        spinner.Fail();
+                    }
                     throw;
                 }
             }
         }
 
-        public static async Task StartAsync(string text, Func<Task> action, Pattern pattern = null)
+        public static Task StartAsync(string text, Func<Task> action, Pattern pattern = null, Pattern fallbackPattern = null)
         {
-            using (var spinner = new Spinner(text, pattern))
+            return StartAsync(text, _ => action(), pattern, fallbackPattern);
+        }
+
+        public static async Task StartAsync(string text, Func<Spinner, Task> action, Pattern pattern = null, Pattern fallbackPattern = null)
+        {
+            using (var spinner = new Spinner(text, pattern, fallbackPattern: fallbackPattern))
             {
                 spinner.Start();
 
                 try
                 {
-                    await action();
-                    spinner.Succeed();
+                    await action(spinner);
+                    if (!spinner.Stopped)
+                    {
+                        spinner.Succeed();
+                    }
                 }
                 catch
                 {
-                    spinner.Fail();
+                    if (!spinner.Stopped)
+                    {
+                        spinner.Fail();
+                    }
                     throw;
                 }
             }
