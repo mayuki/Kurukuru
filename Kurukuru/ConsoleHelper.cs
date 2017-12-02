@@ -32,6 +32,8 @@ namespace Kurukuru
         // See: https://stackoverflow.com/questions/8946808/can-console-clear-be-used-to-only-clear-a-line-instead-of-whole-console/8946847#8946847
         public static void ClearCurrentConsoleLine()
         {
+            if (Console.IsOutputRedirected) return;
+
             int currentLineCursor = Console.CursorTop;
             Console.SetCursorPosition(0, Console.CursorTop);
             Console.Write(new string(' ', Console.WindowWidth));
