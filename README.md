@@ -2,9 +2,13 @@
 
 > Terminal Spinner library for .NET Core/Standard. strongly inspired by [cli-spinners](https://github.com/sindresorhus/cli-spinners), [ora](https://github.com/sindresorhus/ora), [CLISpinner](https://github.com/kiliankoe/CLISpinner).
 
+![](Resources/Screen-Demo-01.gif)
+
 ## Features
+- Disable spinner automatically when running on a non-interactive context in which stdout is redirected.
 - Aware non-Unicode codepage on Windows environment.
     - When running on terminal using non-Unicode codepages (e.g. CP932), the library will render using fallback characters. 
+    - fig. Left:Command Prompt (CP932) / Right:mintty (UTF-8 on Linux)<br />![](Resources/Screen-Demo-02.gif) 
 
 ## Install
 
@@ -33,7 +37,7 @@ Spinner.Start("Stage 1...", spinner =>
 });
 ```
 
-You can also use async method pattern.
+You can also use async method pattern. Use `StartAsync` method.
 
 ```csharp
 await Spinner.StartAsync("Processing...", async () =>
