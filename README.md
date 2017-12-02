@@ -12,9 +12,16 @@
 
 ## Install
 
+### Package Manager Console
 ```
 Install-Package Kurukuru
 ```
+
+### **dotnet** command
+```
+dotnet add package Kurukuru
+```
+
 
 ## Usage
 Just add `using Kurukuru;` then call `Spinner.Start` with some delegate. 
