@@ -1,4 +1,5 @@
 # Kurukuru
+[![Build status](https://ci.appveyor.com/api/projects/status/thcc6shkinss4yog?svg=true)](https://ci.appveyor.com/project/mayuki/kurukuru)
 
 > Terminal Spinner library for .NET Core/Standard. strongly inspired by [cli-spinners](https://github.com/sindresorhus/cli-spinners), [ora](https://github.com/sindresorhus/ora), [CLISpinner](https://github.com/kiliankoe/CLISpinner).
 
