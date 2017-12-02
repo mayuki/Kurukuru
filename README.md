@@ -65,6 +65,32 @@ await Spinner.StartAsync("Stage 1...", async spinner =>
 });
 ```
 
+## API
+### `Kurukuru.Spinner` class
+#### Static Members
+- `Start` / `StartAsync`: Create and start new spinner. And it waits specified action.
+    - `void Start(string text, Action<Spinner> action, Pattern pattern = null, Pattern fallbackPattern = null)`
+    - `void Start(string text, Action<Spinner> action, Pattern pattern = null, Pattern fallbackPattern = null)`
+    - `Task StartAsync(string text, Func<Task> action, Pattern pattern = null, Pattern fallbackPattern = null)`
+    - `Task StartAsync(string text, Func<Spinner, Task> action, Pattern pattern = null, Pattern fallbackPattern = null)`
+        - `text`: a text to display while running action.
+        - `action`: a long-running action.
+        - `patterns`: Use spinner pattern (see `Patterns` class). Default value is `Patterns.Dot`.
+        - `fallbackPattern`: Use spinner pattern if console's codepage is non-Unicode. Default value is `Patterns.Line`.
+
+#### Instance Methods
+- `Stop`: Stop spinner and show a result if needed.
+    - `Stop(string text = null, string symbol = null, ConsoleColor? color = null)`
+    - `Stop(string text, string symbol, ConsoleColor? color, string terminator)`
+- `Success`: Show result as ✔ success. (equivalent to `Stop` method)
+- `Fail`: Show result as ✖ failure. (equivalent to `Stop` method)
+- `Warning`: Show result as ⚠ warning. (equivalent to `Stop` method)
+- `Info`: Show result as ℹ information. (equivalent to `Stop` method)
+
+#### Instance Properties
+- `Text`: Get or set a text to display while running action.
+- `Color`: Get or set a color of the spinner. (not for text)
+
 ## Related
 
 - [cli-spinners](https://github.com/sindresorhus/cli-spinners): Spinners for use in the terminal (node.js)
