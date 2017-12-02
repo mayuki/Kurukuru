@@ -10,6 +10,7 @@
     <PackageTags>CLI Terminal</PackageTags>
     <Description>Spinners for Command Line Interface</Description>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageLicenseUrl>https://github.com/mayuki/Kurukuru/blob/master/LICENSE</PackageLicenseUrl>
   </PropertyGroup>
 
 </Project>
