@@ -11,8 +11,8 @@ When running on terminal using non-Unicode codepages (e.g. CP437:EN-US, CP932:JA
 
 - fig. Left:Command Prompt (CP932) / Right:mintty (UTF-8 on Linux)<br />![](Resources/Screen-Demo-02.gif) 
 
-**NOTE:** Sadly, today's almost Windows are configured as using non-Unicode (UTF-8) code page and "Command Prompt" doesn't support font fallback yet.☹ If you want to see non-ASCII spinners, you can change the code page by 
- `chcp 65001` command and use [ConEmu](https://conemu.github.io/) or [mintty](https://mintty.github.io/) to display the fallback font. 
+**NOTE:** Sadly, today's almost Windows are configured as using non-Unicode (UTF-8) code page and "Command Prompt" doesn't support font fallback yet.☹ If you want to see non-ASCII spinners, you can change the code page either by `System.Console.OutputEncoding = System.Text.Encoding.UTF8` or by running
+ `chcp 65001` command and then use [ConEmu](https://conemu.github.io/) or [mintty](https://mintty.github.io/) to display the fallback font. 
 
 - See: [Screenshot: cmd vs ConEmu on Windows 10(EN-US)](Resources/CmdAndConEmu.png)
 
