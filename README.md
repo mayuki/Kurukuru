@@ -6,10 +6,12 @@
 ![](Resources/Screen-Demo-01.gif)
 
 ## Features
-- Disable spinner automatically when running on a non-interactive context in which stdout is redirected.
 - Aware non-Unicode codepage on Windows environment.
     - When running on terminal using non-Unicode codepages (e.g. CP932), the library will render using fallback characters. 
     - fig. Left:Command Prompt (CP932) / Right:mintty (UTF-8 on Linux)<br />![](Resources/Screen-Demo-02.gif) 
+    - **NOTE:** Sadly, today's almost Windows are configured as non-Unicode (UTF-8) and "Command Prompt" doesn't support font fallback yet.☹ If you want to see non-ASCII spinners,  you can change the code page by 
+ `chcp 65001` command and use [ConEmu](https://conemu.github.io/) or [mintty](https://mintty.github.io/) to display the fallback font.
+- Disable spinner automatically when running on a non-interactive context (e.g. CI) in which stdout is redirected.
 
 ## Install
 
