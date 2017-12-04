@@ -7,7 +7,7 @@
 
 ## Features
 ### Aware non-Unicode codepage on Windows environment.
-When running on terminal using non-Unicode codepages (e.g. CP932), the library will render using ASCII-characters spinner by default.
+When running on terminal using non-Unicode codepages (e.g. CP437:EN-US, CP932:JA-JP), the library will render using ASCII-characters spinner by default.
 
 - fig. Left:Command Prompt (CP932) / Right:mintty (UTF-8 on Linux)<br />![](Resources/Screen-Demo-02.gif) 
 
