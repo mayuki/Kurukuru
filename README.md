@@ -11,14 +11,14 @@ When running on terminal using non-Unicode codepages (e.g. CP932), the library w
 
 - fig. Left:Command Prompt (CP932) / Right:mintty (UTF-8 on Linux)<br />![](Resources/Screen-Demo-02.gif) 
 
-**NOTE:** Sadly, today's almost Windows are configured as non-Unicode (UTF-8) and "Command Prompt" doesn't support font fallback yet.☹ 
-
-If you want to see non-ASCII spinners, you can change the code page by 
+**NOTE:** Sadly, today's almost Windows are configured as non-Unicode (UTF-8) and "Command Prompt" doesn't support font fallback yet.☹ If you want to see non-ASCII spinners, you can change the code page by 
  `chcp 65001` command and use [ConEmu](https://conemu.github.io/) or [mintty](https://mintty.github.io/) to display the fallback font. 
 
 - See: [Screenshot: cmd vs ConEmu on Windows 10(EN-US)](Resources/CmdAndConEmu.png)
 
 ### Disable spinner automatically when running on a non-interactive context in which stdout is redirected.
+
+For example, you can see just a result text when runs on CI.
 
 ## Install
 
