@@ -84,7 +84,7 @@ await Spinner.StartAsync("Stage 1...", async spinner =>
     - `Task StartAsync(string text, Func<Spinner, Task> action, Pattern pattern = null, Pattern fallbackPattern = null)`
         - `text`: a text to display while running action.
         - `action`: a long-running action.
-        - `patterns`: Use spinner pattern (see `Patterns` class). Default value is `Patterns.Dot`.
+        - `patterns`: Use spinner pattern (see `Patterns` class). Default value is `Patterns.Dot`. You can find a pattern you like in [the preview of cli-spinners](http://jsfiddle.net/sindresorhus/2eLtsbey/embedded/result/).
         - `fallbackPattern`: Use spinner pattern if console's codepage is non-Unicode. Default value is `Patterns.Line`.
 
 #### Instance Methods
