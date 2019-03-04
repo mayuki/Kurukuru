@@ -11,6 +11,7 @@
     <Description>Spinners for Command Line Interface</Description>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseUrl>https://github.com/mayuki/Kurukuru/blob/master/LICENSE</PackageLicenseUrl>
+    <Version>1.1.0</Version>
   </PropertyGroup>
 
 </Project>
