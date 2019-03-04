@@ -1,10 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net45</TargetFrameworks>
     <Authors>Mayuki Sawatari</Authors>
     <Company></Company>
-    <Copyright>Copyright © 2017-present Mayuki Sawatari</Copyright>
+    <Copyright>Copyright © 2019-present Mayuki Sawatari</Copyright>
     <PackageProjectUrl>https://github.com/mayuki/Kurukuru</PackageProjectUrl>
     <RepositoryUrl>https://github.com/mayuki/Kurukuru</RepositoryUrl>
     <PackageTags>CLI Terminal</PackageTags>
