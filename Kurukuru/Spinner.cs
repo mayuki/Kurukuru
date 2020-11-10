@@ -6,7 +6,7 @@ namespace Kurukuru
 {
     public class Spinner : IDisposable
     {
-        private CancellationTokenSource _cancellationTokenSource;
+        private readonly CancellationTokenSource _cancellationTokenSource;
         private Task _task;
         private Pattern _pattern;
         private Pattern _fallbackPattern;
@@ -187,6 +187,38 @@ namespace Kurukuru
                     {
                         spinner.Succeed();
                     }
+                }
+                catch
+                {
+                    if (!spinner.Stopped)
+                    {
+                        spinner.Fail();
+                    }
+                    throw;
+                }
+            }
+        }
+
+        public static Task<TResult> StartAsync<TResult>(string text, Func<Task<TResult>> action, Pattern pattern = null, Pattern fallbackPattern = null)
+        {
+            return StartAsync(text, _ => action(), pattern, fallbackPattern);
+        }
+
+        public static async Task<TResult> StartAsync<TResult>(string text, Func<Spinner, Task<TResult>> action, Pattern pattern = null, Pattern fallbackPattern = null)
+        {
+            using (var spinner = new Spinner(text, pattern, fallbackPattern: fallbackPattern))
+            {
+                spinner.Start();
+
+                try
+                {
+                    var result = await action(spinner);
+                    if (!spinner.Stopped)
+                    {
+                        spinner.Succeed();
+                    }
+
+                    return result;
                 }
                 catch
                 {
