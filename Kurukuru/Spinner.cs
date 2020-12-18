@@ -11,6 +11,7 @@ namespace Kurukuru
         private Pattern _pattern;
         private Pattern _fallbackPattern;
         private int _frameIndex;
+        private int _lineLength;
         private bool _enabled;
 
         public bool Stopped { get; private set; }
@@ -76,10 +77,12 @@ namespace Kurukuru
 
         private void Render()
         {
-            ConsoleHelper.ClearCurrentConsoleLine();
-
             var pattern = CurrentPattern;
             var frame = pattern.Frames[_frameIndex++ % pattern.Frames.Length];
+
+            ConsoleHelper.ClearCurrentConsoleLine(_lineLength);
+            _lineLength = frame.Length + 1 + Text.Length;
+
             ConsoleHelper.WriteWithColor(frame, Color ?? Console.ForegroundColor);
             Console.Write(" ");
             Console.Write(Text);
