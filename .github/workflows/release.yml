@@ -1,0 +1,45 @@
+name: Build-Release
+
+on:
+  push:
+    tags:
+      - v*
+
+jobs:
+  release:
+    if: "contains(github.ref, 'refs/tags')"
+
+    runs-on: ubuntu-latest
+    env:
+      DOTNET_NOLOGO: true
+    
+    steps:
+    - uses: actions/checkout@v1
+
+    - uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '3.1.x'
+
+    - name: "Set VersionSuffix for Preview"
+      if: "contains(github.ref, 'refs/tags') && contains(github.ref, 'preview')"
+      run: |
+        echo "::set-env name=VERSION_SUFFIX::preview.`date '+%Y%m%d-%H%M%S'`+${GITHUB_SHA:0:6}"
+
+    - name: "Get git tag"
+      if: "contains(github.ref, 'refs/tags')"
+      run: echo ::set-env name=GIT_TAG::${GITHUB_REF#refs/tags/}
+
+    - name: "dotnet build & pack"
+      run: |
+        dotnet restore
+        dotnet build -c Release
+        dotnet pack -c Release -o $GITHUB_WORKSPACE/artifacts --version-suffix "$VERSION_SUFFIX" -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg
+
+    - uses: actions/upload-artifact@master
+      with:
+        name: Packages
+        path: artifacts
+
+    - name: "Push to NuGet.org"
+      run: |
+        dotnet nuget push "$GITHUB_WORKSPACE/artifacts/*.nupkg" --skip-duplicate -k ${{ secrets.NUGET_KEY }} -s https://api.nuget.org/v3/index.json
