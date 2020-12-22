@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <VersionPrefix>1.2.0</VersionPrefix>
+    <LangVersion>latest</LangVersion>
+
+    <Authors>Mayuki Sawatari</Authors>
+    <Company></Company>
+    <Copyright>Copyright © 2019-present Mayuki Sawatari</Copyright>
+    <PackageProjectUrl>https://github.com/mayuki/Kurukuru</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/mayuki/Kurukuru</RepositoryUrl>
+    <PackageTags>CLI Terminal</PackageTags>
+    <Description>Spinners for Command Line Interface</Description>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+</Project>

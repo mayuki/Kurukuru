@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -7,12 +7,12 @@ namespace Kurukuru
     public class Spinner : IDisposable
     {
         private readonly CancellationTokenSource _cancellationTokenSource;
-        private Task _task;
+        private readonly bool _enabled;
+        private Task? _task;
         private Pattern _pattern;
         private Pattern _fallbackPattern;
         private int _frameIndex;
         private int _lineLength;
-        private bool _enabled;
 
         public bool Stopped { get; private set; }
         public SymbolDefinition SymbolSucceed { get; set; } = new SymbolDefinition("✔", "O");
@@ -43,7 +43,7 @@ namespace Kurukuru
             }
         }
 
-        public Spinner(string text, Pattern pattern = null, ConsoleColor? color = null, bool enabled = true, Pattern fallbackPattern = null)
+        public Spinner(string text, Pattern? pattern = null, ConsoleColor? color = null, bool enabled = true, Pattern? fallbackPattern = null)
         {
             _cancellationTokenSource = new CancellationTokenSource();
             _pattern = pattern ?? DefaultPattern;
@@ -97,12 +97,12 @@ namespace Kurukuru
             }
         }
 
-        public void Stop(string text = null, string symbol = null, ConsoleColor? color = null)
+        public void Stop(string? text = null, string? symbol = null, ConsoleColor? color = null)
         {
             Stop(text, symbol, color, Environment.NewLine);
         }
 
-        public void Stop(string text, string symbol, ConsoleColor? color, string terminator)
+        public void Stop(string? text, string? symbol, ConsoleColor? color, string terminator)
         {
             if (_cancellationTokenSource.IsCancellationRequested) return;
 
@@ -121,32 +121,32 @@ namespace Kurukuru
             ConsoleHelper.SetCursorVisibility(true);
         }
 
-        public void Succeed(string text = null)
+        public void Succeed(string? text = null)
         {
             Stop(text, ConsoleHelper.ShouldFallback ? SymbolSucceed.Fallback : SymbolSucceed.Default, ConsoleColor.Green);
         }
 
-        public void Fail(string text = null)
+        public void Fail(string? text = null)
         {
             Stop(text, ConsoleHelper.ShouldFallback ? SymbolFailed.Fallback : SymbolFailed.Default, ConsoleColor.Red);
         }
 
-        public void Warn(string text = null)
+        public void Warn(string? text = null)
         {
             Stop(text, ConsoleHelper.ShouldFallback ? SymbolWarn.Fallback : SymbolWarn.Default, ConsoleColor.Yellow);
         }
 
-        public void Info(string text = null)
+        public void Info(string? text = null)
         {
             Stop(text, ConsoleHelper.ShouldFallback ? SymbolInfo.Fallback : SymbolInfo.Default, ConsoleColor.Blue);
         }
 
-        public static void Start(string text, Action action, Pattern pattern = null, Pattern fallbackPattern = null)
+        public static void Start(string text, Action action, Pattern? pattern = null, Pattern? fallbackPattern = null)
         {
             Start(text, _ => action(), pattern, fallbackPattern);
         }
 
-        public static void Start(string text, Action<Spinner> action, Pattern pattern = null, Pattern fallbackPattern = null)
+        public static void Start(string text, Action<Spinner> action, Pattern? pattern = null, Pattern? fallbackPattern = null)
         {
             using (var spinner = new Spinner(text, pattern, fallbackPattern: fallbackPattern))
             {
@@ -172,12 +172,12 @@ namespace Kurukuru
             }
         }
 
-        public static Task StartAsync(string text, Func<Task> action, Pattern pattern = null, Pattern fallbackPattern = null)
+        public static Task StartAsync(string text, Func<Task> action, Pattern? pattern = null, Pattern? fallbackPattern = null)
         {
             return StartAsync(text, _ => action(), pattern, fallbackPattern);
         }
 
-        public static async Task StartAsync(string text, Func<Spinner, Task> action, Pattern pattern = null, Pattern fallbackPattern = null)
+        public static async Task StartAsync(string text, Func<Spinner, Task> action, Pattern? pattern = null, Pattern? fallbackPattern = null)
         {
             using (var spinner = new Spinner(text, pattern, fallbackPattern: fallbackPattern))
             {
@@ -202,12 +202,12 @@ namespace Kurukuru
             }
         }
 
-        public static Task<TResult> StartAsync<TResult>(string text, Func<Task<TResult>> action, Pattern pattern = null, Pattern fallbackPattern = null)
+        public static Task<TResult> StartAsync<TResult>(string text, Func<Task<TResult>> action, Pattern? pattern = null, Pattern? fallbackPattern = null)
         {
             return StartAsync(text, _ => action(), pattern, fallbackPattern);
         }
 
-        public static async Task<TResult> StartAsync<TResult>(string text, Func<Spinner, Task<TResult>> action, Pattern pattern = null, Pattern fallbackPattern = null)
+        public static async Task<TResult> StartAsync<TResult>(string text, Func<Spinner, Task<TResult>> action, Pattern? pattern = null, Pattern? fallbackPattern = null)
         {
             using (var spinner = new Spinner(text, pattern, fallbackPattern: fallbackPattern))
             {
