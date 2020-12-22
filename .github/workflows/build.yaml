@@ -11,7 +11,8 @@ on:
 
 jobs:
   Build:
-    runs-on: ubuntu-latest
+    # To build `net45` target, we need to run the build on Windows.
+    runs-on: windows-latest
     env:
       DOTNET_NOLOGO: true
     steps:

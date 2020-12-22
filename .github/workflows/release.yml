@@ -9,7 +9,8 @@ jobs:
   release:
     if: "contains(github.ref, 'refs/tags')"
 
-    runs-on: ubuntu-latest
+    # To build `net45` target, we need to run the build on Windows.
+    runs-on: windows-latest
     env:
       DOTNET_NOLOGO: true
     
@@ -20,20 +21,11 @@ jobs:
       with:
         dotnet-version: '3.1.x'
 
-    - name: "Set VersionSuffix for Preview"
-      if: "contains(github.ref, 'refs/tags') && contains(github.ref, 'preview')"
-      run: |
-        echo "::set-env name=VERSION_SUFFIX::preview.`date '+%Y%m%d-%H%M%S'`+${GITHUB_SHA:0:6}"
-
-    - name: "Get git tag"
-      if: "contains(github.ref, 'refs/tags')"
-      run: echo ::set-env name=GIT_TAG::${GITHUB_REF#refs/tags/}
-
     - name: "dotnet build & pack"
       run: |
         dotnet restore
         dotnet build -c Release
-        dotnet pack -c Release -o $GITHUB_WORKSPACE/artifacts --version-suffix "$VERSION_SUFFIX" -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg
+        dotnet pack -c Release -o $GITHUB_WORKSPACE/artifacts -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg
 
     - uses: actions/upload-artifact@master
       with:
