@@ -34,4 +34,4 @@ jobs:
 
     - name: "Push to NuGet.org"
       run: |
-        dotnet nuget push "$env:GITHUB_WORKSPACE/artifacts/*.nupkg" --skip-duplicate -k ${{ secrets.NUGET_KEY }} -s https://api.nuget.org/v3/index.json
+        dotnet nuget push "$env:GITHUB_WORKSPACE\artifacts\*.nupkg" --skip-duplicate -k ${{ secrets.NUGET_KEY }} -s https://api.nuget.org/v3/index.json
