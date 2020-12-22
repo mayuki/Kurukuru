@@ -185,7 +185,7 @@ namespace Kurukuru
 
                 try
                 {
-                    await action(spinner);
+                    await action(spinner).ConfigureAwait(false);
                     if (!spinner.Stopped)
                     {
                         spinner.Succeed();
@@ -215,7 +215,7 @@ namespace Kurukuru
 
                 try
                 {
-                    var result = await action(spinner);
+                    var result = await action(spinner).ConfigureAwait(false);
                     if (!spinner.Stopped)
                     {
                         spinner.Succeed();
