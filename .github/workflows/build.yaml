@@ -30,7 +30,7 @@ jobs:
 
     # Packaging
     - name: dotnet pack Kurukuru
-      run: dotnet pack -c Release --no-build -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --output $GITHUB_WORKSPACE/artifacts ./Kurukuru/Kurukuru.csproj
+      run: dotnet pack -c Release --no-build -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --output $env:GITHUB_WORKSPACE/artifacts ./Kurukuru/Kurukuru.csproj
 
     # Upload & Publish
     - uses: actions/upload-artifact@master

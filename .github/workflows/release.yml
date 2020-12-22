@@ -25,7 +25,7 @@ jobs:
       run: |
         dotnet restore
         dotnet build -c Release
-        dotnet pack -c Release -o $GITHUB_WORKSPACE/artifacts -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg
+        dotnet pack -c Release -o $env:GITHUB_WORKSPACE/artifacts -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg
 
     - uses: actions/upload-artifact@master
       with:
@@ -34,4 +34,4 @@ jobs:
 
     - name: "Push to NuGet.org"
       run: |
-        dotnet nuget push "$GITHUB_WORKSPACE/artifacts/*.nupkg" --skip-duplicate -k ${{ secrets.NUGET_KEY }} -s https://api.nuget.org/v3/index.json
+        dotnet nuget push "$env:GITHUB_WORKSPACE/artifacts/*.nupkg" --skip-duplicate -k ${{ secrets.NUGET_KEY }} -s https://api.nuget.org/v3/index.json
