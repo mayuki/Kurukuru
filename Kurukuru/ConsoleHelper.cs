@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace Kurukuru
 {
@@ -36,7 +36,7 @@ namespace Kurukuru
 
             int currentLineCursor = Console.CursorTop;
             Console.SetCursorPosition(0, Console.CursorTop);
-            Console.Write(new string(' ', length));
+            Console.Write(new string(' ', Console.WindowWidth));
             Console.SetCursorPosition(0, currentLineCursor);
             Console.Out.Flush();
         }
