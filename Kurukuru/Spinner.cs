@@ -59,6 +59,7 @@ namespace Kurukuru
             if (!_enabled) return;
             if (_task != null) throw new InvalidOperationException("Spinner is already running");
 
+            ConsoleHelper.TryEnableEscapeSequence();
             ConsoleHelper.SetCursorVisibility(false);
 
             Stopped = false;
@@ -70,7 +71,7 @@ namespace Kurukuru
                 while (!_cancellationTokenSource.IsCancellationRequested)
                 {
                     Render();
-                    await Task.Delay(CurrentPattern.Interval);
+                    await Task.Delay(CurrentPattern.Interval).ConfigureAwait(false);
                 }
             });
         }
