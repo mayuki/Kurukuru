@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.InteropServices;
 
 namespace Kurukuru
 {
@@ -17,8 +18,34 @@ namespace Kurukuru
         {
             get
             {
-                return Environment.OSVersion.Platform == PlatformID.Unix;
+                var isWindows = Environment.OSVersion.Platform == PlatformID.Win32NT;
+                if (isWindows)
+                {
+                    var stdOutput = PInvoke.GetStdHandle(PInvoke.StdHandle.STD_OUTPUT_HANDLE);
+                    return PInvoke.GetConsoleMode(stdOutput, out var mode) && mode.HasFlag(PInvoke.ConsoleMode.ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+                }
+                else
+                {
+                    // macOS, Linux
+                    return true;
+                }
             }
+        }
+
+        public static bool TryEnableEscapeSequence()
+        {
+            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+            {
+                var stdOutput = PInvoke.GetStdHandle(PInvoke.StdHandle.STD_OUTPUT_HANDLE);
+                if (PInvoke.GetConsoleMode(stdOutput, out var mode))
+                {
+                    if (PInvoke.SetConsoleMode(stdOutput, mode | PInvoke.ConsoleMode.ENABLE_VIRTUAL_TERMINAL_PROCESSING))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         public static void WriteWithColor(string s, ConsoleColor color)
