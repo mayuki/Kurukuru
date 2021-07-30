@@ -14,23 +14,7 @@ namespace Kurukuru
             }
         }
 
-        public static bool CanAcceptEscapeSequence
-        {
-            get
-            {
-                var isWindows = Environment.OSVersion.Platform == PlatformID.Win32NT;
-                if (isWindows)
-                {
-                    var stdOutput = PInvoke.GetStdHandle(PInvoke.StdHandle.STD_OUTPUT_HANDLE);
-                    return PInvoke.GetConsoleMode(stdOutput, out var mode) && mode.HasFlag(PInvoke.ConsoleMode.ENABLE_VIRTUAL_TERMINAL_PROCESSING);
-                }
-                else
-                {
-                    // macOS, Linux
-                    return true;
-                }
-            }
-        }
+        public static bool CanAcceptEscapeSequence { get; private set; } = (Environment.OSVersion.Platform != PlatformID.Win32NT);
 
         public static bool TryEnableEscapeSequence()
         {
@@ -41,10 +25,12 @@ namespace Kurukuru
                 {
                     if (PInvoke.SetConsoleMode(stdOutput, mode | PInvoke.ConsoleMode.ENABLE_VIRTUAL_TERMINAL_PROCESSING))
                     {
+                        CanAcceptEscapeSequence = true;
                         return true;
                     }
                 }
             }
+
             return false;
         }
 
@@ -61,10 +47,18 @@ namespace Kurukuru
         {
             if (Console.IsOutputRedirected || length == 0) return;
 
-            int currentLineCursor = Console.CursorTop;
-            Console.SetCursorPosition(0, Console.CursorTop);
-            Console.Write(new string(' ', Console.WindowWidth));
-            Console.SetCursorPosition(0, currentLineCursor);
+            if (CanAcceptEscapeSequence)
+            {
+                Console.SetCursorPosition(0, Console.CursorTop);
+                Console.Write("\u001B[2K");
+            }
+            else
+            {
+                int currentLineCursor = Console.CursorTop;
+                Console.SetCursorPosition(0, Console.CursorTop);
+                Console.Write(new string(' ', length));
+                Console.SetCursorPosition(0, currentLineCursor);
+            }
             Console.Out.Flush();
         }
 
