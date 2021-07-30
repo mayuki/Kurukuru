@@ -1,7 +1,7 @@
 # Kurukuru
 [![Build-Development](https://github.com/mayuki/Kurukuru/workflows/Build-Development/badge.svg)](https://github.com/mayuki/Kurukuru/actions)
 
-> Terminal Spinner library for .NET Core/Standard. strongly inspired by [cli-spinners](https://github.com/sindresorhus/cli-spinners), [ora](https://github.com/sindresorhus/ora), [CLISpinner](https://github.com/kiliankoe/CLISpinner).
+> Terminal Spinner library for .NET platform (.NET Framework, .NET Standard, .NET 5). strongly inspired by [cli-spinners](https://github.com/sindresorhus/cli-spinners), [ora](https://github.com/sindresorhus/ora), [CLISpinner](https://github.com/kiliankoe/CLISpinner).
 
 ![](Resources/Screen-Demo-01.gif)
 
