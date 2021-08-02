@@ -48,7 +48,7 @@ namespace Kurukuru
             _cancellationTokenSource = new CancellationTokenSource();
             _pattern = pattern ?? DefaultPattern;
             _fallbackPattern = fallbackPattern ?? DefaultPattern;
-            _enabled = enabled && String.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("CI")) && !Console.IsOutputRedirected /* isatty */;
+            _enabled = enabled && !ConsoleHelper.IsRunningOnCI && !Console.IsOutputRedirected /* isatty */;
 
             Text = text;
             Color = color;

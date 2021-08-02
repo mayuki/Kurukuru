@@ -14,7 +14,11 @@ namespace Kurukuru
             }
         }
 
-        public static bool CanAcceptEscapeSequence { get; private set; } = (Environment.OSVersion.Platform != PlatformID.Win32NT);
+        private static bool _canAcceptEscapeSequence = (Environment.OSVersion.Platform != PlatformID.Win32NT);
+        public static bool CanAcceptEscapeSequence
+            => _canAcceptEscapeSequence && !IsRunningOnCI && !Console.IsOutputRedirected;
+
+        public static bool IsRunningOnCI { get; } = !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("CI"));
 
         public static bool TryEnableEscapeSequence()
         {
@@ -25,7 +29,7 @@ namespace Kurukuru
                 {
                     if (PInvoke.SetConsoleMode(stdOutput, mode | PInvoke.ConsoleMode.ENABLE_VIRTUAL_TERMINAL_PROCESSING))
                     {
-                        CanAcceptEscapeSequence = true;
+                        _canAcceptEscapeSequence = true;
                         return true;
                     }
                 }
