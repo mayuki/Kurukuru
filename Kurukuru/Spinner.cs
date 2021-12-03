@@ -6,6 +6,12 @@ namespace Kurukuru
 {
     public class Spinner : IDisposable
     {
+        private static readonly object s_consoleLock = new object();
+        private static int s_runnningSpinnerCount = 0;
+        private static int s_firstSpinnerCursorTop = 0;
+        private static int s_LastSpinnerCursorTop = 0;
+        private static int s_LastSpinnerCursorLeft = 0;
+
         private readonly CancellationTokenSource _cancellationTokenSource;
         private readonly bool _enabled;
         private Task? _task;
@@ -13,6 +19,7 @@ namespace Kurukuru
         private Pattern _fallbackPattern;
         private int _frameIndex;
         private int _lineLength;
+        private int _cursorTop;
 
         public bool Stopped { get; private set; }
         public SymbolDefinition SymbolSucceed { get; set; } = new SymbolDefinition("✔", "O");
@@ -59,10 +66,22 @@ namespace Kurukuru
             if (!_enabled) return;
             if (_task != null) throw new InvalidOperationException("Spinner is already running");
 
-            ConsoleHelper.TryEnableEscapeSequence();
-            ConsoleHelper.SetCursorVisibility(false);
-
             Stopped = false;
+            lock (s_consoleLock)
+            {
+                ConsoleHelper.TryEnableEscapeSequence();
+                ConsoleHelper.SetCursorVisibility(false);
+
+                if (s_runnningSpinnerCount == 0)
+                {
+                    _cursorTop = s_firstSpinnerCursorTop = s_LastSpinnerCursorTop = Console.CursorTop;
+                }
+                else
+                {
+                    _cursorTop = s_LastSpinnerCursorTop = (s_firstSpinnerCursorTop + (s_runnningSpinnerCount * 1));
+                }
+                s_runnningSpinnerCount += 1;
+            }
 
             _task = Task.Run(async () =>
             {
@@ -81,13 +100,20 @@ namespace Kurukuru
             var pattern = CurrentPattern;
             var frame = pattern.Frames[_frameIndex++ % pattern.Frames.Length];
 
-            ConsoleHelper.ClearCurrentConsoleLine(_lineLength);
-            _lineLength = frame.Length + 1 + Text.Length;
+            lock (s_consoleLock)
+            {
+                ConsoleHelper.ClearCurrentConsoleLine(_lineLength, _cursorTop);
+                ConsoleHelper.WriteWithColor(frame, Color ?? Console.ForegroundColor);
+                Console.Write(" ");
+                Console.Write(Text);
+                Console.Out.Flush();
 
-            ConsoleHelper.WriteWithColor(frame, Color ?? Console.ForegroundColor);
-            Console.Write(" ");
-            Console.Write(Text);
-            Console.Out.Flush();
+                _lineLength = Console.CursorLeft;
+                if (s_LastSpinnerCursorTop == _cursorTop)
+                {
+                    s_LastSpinnerCursorLeft = Console.CursorLeft;
+                }
+            }
         }
 
         public void Dispose()
@@ -115,11 +141,17 @@ namespace Kurukuru
             Stopped = true;
 
             _pattern = _fallbackPattern = new Pattern(new[] { symbol ?? " " }, 1000);
-            Render();
-
-            Console.Write(terminator);
-
-            ConsoleHelper.SetCursorVisibility(true);
+            lock (s_consoleLock)
+            {
+                Render();
+                s_runnningSpinnerCount--;
+                if (s_runnningSpinnerCount == 0)
+                {
+                    Console.SetCursorPosition(s_LastSpinnerCursorLeft, s_LastSpinnerCursorTop);
+                    Console.Write(terminator);
+                    ConsoleHelper.SetCursorVisibility(true);
+                }
+            }
         }
 
         public void Succeed(string? text = null)
