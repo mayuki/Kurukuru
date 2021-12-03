@@ -120,10 +120,10 @@ namespace Kurukuru
                 ConsoleHelper.WriteWithColor(frame, Color ?? Console.ForegroundColor);
                 Console.Write(" ");
                 Console.Write(Text);
+                _lineLength = Console.CursorLeft; // get line length before write terminator
                 Console.Write(terminator);
                 Console.Out.Flush();
 
-                _lineLength = Console.CursorLeft;
                 Console.SetCursorPosition(currentLeft, currentTop);
             }
         }
