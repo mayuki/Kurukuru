@@ -7,7 +7,7 @@ namespace Kurukuru
     public class Spinner : IDisposable
     {
         private static readonly object s_consoleLock;
-        private static int s_runnningSpinnerCount;
+        private static int s_runningSpinnerCount;
 
         static Spinner()
         {
@@ -85,14 +85,17 @@ namespace Kurukuru
             Stopped = false;
             lock (s_consoleLock)
             {
-                if (s_runnningSpinnerCount == 0)
+                lock (Console.Out)
                 {
-                    ConsoleHelper.TryEnableEscapeSequence();
-                    ConsoleHelper.SetCursorVisibility(false);
+                    if (s_runningSpinnerCount == 0)
+                    {
+                        ConsoleHelper.TryEnableEscapeSequence();
+                        ConsoleHelper.SetCursorVisibility(false);
+                    }
+                    s_runningSpinnerCount++;
+                    _cursorTop = Console.CursorTop;
+                    Console.SetCursorPosition(Console.CursorLeft, Console.CursorTop + 1);
                 }
-                s_runnningSpinnerCount++;
-                _cursorTop = Console.CursorTop;
-                Console.SetCursorPosition(Console.CursorLeft, Console.CursorTop + 1);
             }
 
             _task = Task.Run(async () =>
@@ -113,18 +116,21 @@ namespace Kurukuru
 
             lock (s_consoleLock)
             {
-                var currentLeft = Console.CursorLeft;
-                var currentTop = Console.CursorTop;
+                lock (Console.Out)
+                {
+                    var currentLeft = Console.CursorLeft;
+                    var currentTop = Console.CursorTop;
 
-                ConsoleHelper.ClearCurrentConsoleLine(_lineLength, _cursorTop);
-                ConsoleHelper.WriteWithColor(frame, Color ?? Console.ForegroundColor);
-                Console.Write(" ");
-                Console.Write(Text);
-                _lineLength = Console.CursorLeft; // get line length before write terminator
-                Console.Write(terminator);
-                Console.Out.Flush();
+                    ConsoleHelper.ClearCurrentConsoleLine(_lineLength, _cursorTop);
+                    ConsoleHelper.WriteWithColor(frame, Color ?? Console.ForegroundColor);
+                    Console.Write(" ");
+                    Console.Write(Text);
+                    _lineLength = Console.CursorLeft; // get line length before write terminator
+                    Console.Write(terminator);
+                    Console.Out.Flush();
 
-                Console.SetCursorPosition(currentLeft, currentTop);
+                    Console.SetCursorPosition(currentLeft, currentTop);
+                }
             }
         }
 
@@ -156,8 +162,8 @@ namespace Kurukuru
             lock (s_consoleLock)
             {
                 Render(terminator);
-                s_runnningSpinnerCount--;
-                if (s_runnningSpinnerCount == 0)
+                s_runningSpinnerCount--;
+                if (s_runningSpinnerCount == 0)
                 {
                     ConsoleHelper.SetCursorVisibility(true);
                 }
