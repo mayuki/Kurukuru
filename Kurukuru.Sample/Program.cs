@@ -23,7 +23,6 @@ namespace Kurukuru.Sample
                 spinner.Text = "こんにちは Alice!";
             });
 
-
             try
             {
                 await Spinner.StartAsync("Executing some heavy task...", async () =>
@@ -36,7 +35,7 @@ namespace Kurukuru.Sample
             {
             }
 
-            var cts = new CancellationTokenSource(3000);
+            var cts = new CancellationTokenSource(5000);
             var count = 0;
             Task CreateThreadingSpinner(int number) => Spinner.StartAsync($"Threading {number}…", async spinner =>
             {
@@ -48,11 +47,30 @@ namespace Kurukuru.Sample
                 }
             });
 
+            var otherCount = 0;
+            _ = Task.Run(async () =>
+            {
+                while (!cts.IsCancellationRequested)
+                {
+                    await Task.Delay(1500);
+                    Console.WriteLine("other logging " + Interlocked.Increment(ref otherCount));
+                }
+            });
+
             var one = CreateThreadingSpinner(1);
             var two = CreateThreadingSpinner(2);
             var three = CreateThreadingSpinner(3);
 
-            await Task.WhenAll(one, two, three);
+            var more = Task.Run(async () =>
+            {
+                await Task.Delay(2000);
+
+                var four = CreateThreadingSpinner(4);
+                var five = CreateThreadingSpinner(5);
+                await Task.WhenAll(four, five);
+            });
+
+            await Task.WhenAll(one, two, three, more);
             Console.WriteLine("Complete");
         }
     }

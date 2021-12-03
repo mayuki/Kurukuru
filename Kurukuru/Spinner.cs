@@ -6,11 +6,22 @@ namespace Kurukuru
 {
     public class Spinner : IDisposable
     {
-        private static readonly object s_consoleLock = new object();
-        private static int s_runnningSpinnerCount = 0;
-        private static int s_firstSpinnerCursorTop = 0;
-        private static int s_LastSpinnerCursorTop = 0;
-        private static int s_LastSpinnerCursorLeft = 0;
+        private static readonly object s_consoleLock;
+        private static int s_runnningSpinnerCount;
+
+        static Spinner()
+        {
+            // try get internal Console's lock object( .NET 6 )
+            var lockObject = typeof(Console).GetField("s_syncObject", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+            if (lockObject != null)
+            {
+                s_consoleLock = lockObject;
+            }
+            else
+            {
+                s_consoleLock = new object();
+            }
+        }
 
         private readonly CancellationTokenSource _cancellationTokenSource;
         private readonly bool _enabled;
@@ -63,56 +74,57 @@ namespace Kurukuru
 
         public void Start()
         {
+            Start(Environment.NewLine);
+        }
+
+        public void Start(string terminator)
+        {
             if (!_enabled) return;
             if (_task != null) throw new InvalidOperationException("Spinner is already running");
 
             Stopped = false;
             lock (s_consoleLock)
             {
-                ConsoleHelper.TryEnableEscapeSequence();
-                ConsoleHelper.SetCursorVisibility(false);
-
                 if (s_runnningSpinnerCount == 0)
                 {
-                    _cursorTop = s_firstSpinnerCursorTop = s_LastSpinnerCursorTop = Console.CursorTop;
+                    ConsoleHelper.TryEnableEscapeSequence();
+                    ConsoleHelper.SetCursorVisibility(false);
                 }
-                else
-                {
-                    _cursorTop = s_LastSpinnerCursorTop = (s_firstSpinnerCursorTop + (s_runnningSpinnerCount * 1));
-                }
-                s_runnningSpinnerCount += 1;
+                s_runnningSpinnerCount++;
+                _cursorTop = Console.CursorTop;
+                Console.SetCursorPosition(Console.CursorLeft, Console.CursorTop + 1);
             }
 
             _task = Task.Run(async () =>
             {
                 _frameIndex = 0;
-
                 while (!_cancellationTokenSource.IsCancellationRequested)
                 {
-                    Render();
+                    Render(terminator);
                     await Task.Delay(CurrentPattern.Interval).ConfigureAwait(false);
                 }
             });
         }
 
-        private void Render()
+        private void Render(string terminator)
         {
             var pattern = CurrentPattern;
             var frame = pattern.Frames[_frameIndex++ % pattern.Frames.Length];
 
             lock (s_consoleLock)
             {
+                var currentLeft = Console.CursorLeft;
+                var currentTop = Console.CursorTop;
+
                 ConsoleHelper.ClearCurrentConsoleLine(_lineLength, _cursorTop);
                 ConsoleHelper.WriteWithColor(frame, Color ?? Console.ForegroundColor);
                 Console.Write(" ");
                 Console.Write(Text);
+                Console.Write(terminator);
                 Console.Out.Flush();
 
                 _lineLength = Console.CursorLeft;
-                if (s_LastSpinnerCursorTop == _cursorTop)
-                {
-                    s_LastSpinnerCursorLeft = Console.CursorLeft;
-                }
+                Console.SetCursorPosition(currentLeft, currentTop);
             }
         }
 
@@ -143,12 +155,10 @@ namespace Kurukuru
             _pattern = _fallbackPattern = new Pattern(new[] { symbol ?? " " }, 1000);
             lock (s_consoleLock)
             {
-                Render();
+                Render(terminator);
                 s_runnningSpinnerCount--;
                 if (s_runnningSpinnerCount == 0)
                 {
-                    Console.SetCursorPosition(s_LastSpinnerCursorLeft, s_LastSpinnerCursorTop);
-                    Console.Write(terminator);
                     ConsoleHelper.SetCursorVisibility(true);
                 }
             }
