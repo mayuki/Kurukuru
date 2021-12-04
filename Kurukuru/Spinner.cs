@@ -121,7 +121,7 @@ namespace Kurukuru
                     var currentLeft = Console.CursorLeft;
                     var currentTop = Console.CursorTop;
 
-                    ConsoleHelper.ClearCurrentConsoleLine(_lineLength, _cursorTop);
+                    ConsoleHelper.ClearCurrentConsoleLine(_lineLength, _enabled ? _cursorTop : currentTop);
                     ConsoleHelper.WriteWithColor(frame, Color ?? Console.ForegroundColor);
                     Console.Write(" ");
                     Console.Write(Text);
@@ -129,7 +129,10 @@ namespace Kurukuru
                     Console.Write(terminator);
                     Console.Out.Flush();
 
-                    Console.SetCursorPosition(currentLeft, currentTop);
+                    if (_enabled)
+                    {
+                        Console.SetCursorPosition(currentLeft, currentTop);
+                    }
                 }
             }
         }
@@ -162,10 +165,13 @@ namespace Kurukuru
             lock (s_consoleLock)
             {
                 Render(terminator);
-                s_runningSpinnerCount--;
-                if (s_runningSpinnerCount == 0)
+                if (_enabled)
                 {
-                    ConsoleHelper.SetCursorVisibility(true);
+                    s_runningSpinnerCount--;
+                    if (s_runningSpinnerCount == 0)
+                    {
+                        ConsoleHelper.SetCursorVisibility(true);
+                    }
                 }
             }
         }
