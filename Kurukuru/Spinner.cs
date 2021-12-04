@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -6,6 +7,23 @@ namespace Kurukuru
 {
     public class Spinner : IDisposable
     {
+        private static readonly object s_consoleLock;
+        private static LinkedList<Spinner> s_runningSpinners = new LinkedList<Spinner>();
+
+        static Spinner()
+        {
+            // try get internal Console's lock object( .NET 6 )
+            var lockObject = typeof(Console).GetField("s_syncObject", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+            if (lockObject != null)
+            {
+                s_consoleLock = lockObject;
+            }
+            else
+            {
+                s_consoleLock = new object();
+            }
+        }
+
         private readonly CancellationTokenSource _cancellationTokenSource;
         private readonly bool _enabled;
         private Task? _task;
@@ -13,6 +31,8 @@ namespace Kurukuru
         private Pattern _fallbackPattern;
         private int _frameIndex;
         private int _lineLength;
+        private int _cursorTop;
+        private LinkedListNode<Spinner>? _nodeSelf;
 
         public bool Stopped { get; private set; }
         public SymbolDefinition SymbolSucceed { get; set; } = new SymbolDefinition("✔", "O");
@@ -56,38 +76,80 @@ namespace Kurukuru
 
         public void Start()
         {
+            Start(Environment.NewLine);
+        }
+
+        public void Start(string terminator)
+        {
             if (!_enabled) return;
             if (_task != null) throw new InvalidOperationException("Spinner is already running");
 
-            ConsoleHelper.TryEnableEscapeSequence();
-            ConsoleHelper.SetCursorVisibility(false);
-
             Stopped = false;
+            lock (s_consoleLock)
+            {
+                lock (Console.Out)
+                {
+                    if (s_runningSpinners.Count == 0)
+                    {
+                        ConsoleHelper.TryEnableEscapeSequence();
+                        ConsoleHelper.SetCursorVisibility(false);
+                    }
+
+                    _cursorTop = Console.CursorTop;
+                    Console.Write(terminator);
+                    Console.Out.Flush();
+
+                    // reaches window boundary
+                    if (_cursorTop == Console.CursorTop)
+                    {
+                        _cursorTop = Math.Max(_cursorTop - 1, 0);
+                        foreach (var item in s_runningSpinners)
+                        {
+                            item._cursorTop = Math.Max(item._cursorTop - 1, 0);
+                        }
+                    }
+
+                    _nodeSelf = s_runningSpinners.AddLast(this);
+                }
+            }
 
             _task = Task.Run(async () =>
             {
                 _frameIndex = 0;
-
                 while (!_cancellationTokenSource.IsCancellationRequested)
                 {
-                    Render();
+                    Render(terminator);
                     await Task.Delay(CurrentPattern.Interval).ConfigureAwait(false);
                 }
             });
         }
 
-        private void Render()
+        private void Render(string terminator)
         {
             var pattern = CurrentPattern;
             var frame = pattern.Frames[_frameIndex++ % pattern.Frames.Length];
 
-            ConsoleHelper.ClearCurrentConsoleLine(_lineLength);
-            _lineLength = frame.Length + 1 + Text.Length;
+            lock (s_consoleLock)
+            {
+                lock (Console.Out)
+                {
+                    var currentLeft = Console.CursorLeft;
+                    var currentTop = Console.CursorTop;
 
-            ConsoleHelper.WriteWithColor(frame, Color ?? Console.ForegroundColor);
-            Console.Write(" ");
-            Console.Write(Text);
-            Console.Out.Flush();
+                    ConsoleHelper.ClearCurrentConsoleLine(_lineLength, _enabled ? _cursorTop : currentTop);
+                    ConsoleHelper.WriteWithColor(frame, Color ?? Console.ForegroundColor);
+                    Console.Write(" ");
+                    Console.Write(Text);
+                    _lineLength = Console.CursorLeft; // get line length before write terminator
+                    Console.Write(terminator);
+                    Console.Out.Flush();
+
+                    if (_enabled)
+                    {
+                        Console.SetCursorPosition(currentLeft, currentTop);
+                    }
+                }
+            }
         }
 
         public void Dispose()
@@ -115,11 +177,18 @@ namespace Kurukuru
             Stopped = true;
 
             _pattern = _fallbackPattern = new Pattern(new[] { symbol ?? " " }, 1000);
-            Render();
-
-            Console.Write(terminator);
-
-            ConsoleHelper.SetCursorVisibility(true);
+            lock (s_consoleLock)
+            {
+                Render(terminator);
+                if (_enabled)
+                {
+                    s_runningSpinners.Remove(_nodeSelf!);
+                    if (s_runningSpinners.Count == 0)
+                    {
+                        ConsoleHelper.SetCursorVisibility(true);
+                    }
+                }
+            }
         }
 
         public void Succeed(string? text = null)
