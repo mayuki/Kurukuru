@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Kurukuru": {
+      "commandName": "Project",
+      "environmentVariables": {
+        //"CI": "1"
+      }
+    }
+  }
+}

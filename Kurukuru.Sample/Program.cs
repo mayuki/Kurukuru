@@ -10,6 +10,8 @@ namespace Kurukuru.Sample
         {
             System.Console.OutputEncoding = System.Text.Encoding.UTF8;
 
+            // for (var i = 0; i < 10000; i++) { Console.WriteLine(i); }
+
             using (var spinner = new Spinner("Initializing...", Patterns.Dots12))
             {
                 spinner.Start();

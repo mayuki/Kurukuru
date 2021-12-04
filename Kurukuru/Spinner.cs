@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -7,7 +8,7 @@ namespace Kurukuru
     public class Spinner : IDisposable
     {
         private static readonly object s_consoleLock;
-        private static int s_runningSpinnerCount;
+        private static LinkedList<Spinner> s_runningSpinners = new LinkedList<Spinner>();
 
         static Spinner()
         {
@@ -31,6 +32,7 @@ namespace Kurukuru
         private int _frameIndex;
         private int _lineLength;
         private int _cursorTop;
+        private LinkedListNode<Spinner>? _nodeSelf;
 
         public bool Stopped { get; private set; }
         public SymbolDefinition SymbolSucceed { get; set; } = new SymbolDefinition("✔", "O");
@@ -87,14 +89,27 @@ namespace Kurukuru
             {
                 lock (Console.Out)
                 {
-                    if (s_runningSpinnerCount == 0)
+                    if (s_runningSpinners.Count == 0)
                     {
                         ConsoleHelper.TryEnableEscapeSequence();
                         ConsoleHelper.SetCursorVisibility(false);
                     }
-                    s_runningSpinnerCount++;
+
                     _cursorTop = Console.CursorTop;
-                    Console.SetCursorPosition(Console.CursorLeft, Console.CursorTop + 1);
+                    Console.Write(terminator);
+                    Console.Out.Flush();
+
+                    // reaches window boundary
+                    if (_cursorTop == Console.CursorTop)
+                    {
+                        _cursorTop = Math.Max(_cursorTop - 1, 0);
+                        foreach (var item in s_runningSpinners)
+                        {
+                            item._cursorTop = Math.Max(item._cursorTop - 1, 0);
+                        }
+                    }
+
+                    _nodeSelf = s_runningSpinners.AddLast(this);
                 }
             }
 
@@ -167,8 +182,8 @@ namespace Kurukuru
                 Render(terminator);
                 if (_enabled)
                 {
-                    s_runningSpinnerCount--;
-                    if (s_runningSpinnerCount == 0)
+                    s_runningSpinners.Remove(_nodeSelf!);
+                    if (s_runningSpinners.Count == 0)
                     {
                         ConsoleHelper.SetCursorVisibility(true);
                     }
