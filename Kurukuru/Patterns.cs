@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -671,6 +671,7 @@ namespace Kurukuru
 
         public static readonly Pattern Clock = new Pattern(new string[]
         {
+            "🕛 ",
             "🕐 ",
             "🕑 ",
             "🕒 ",
