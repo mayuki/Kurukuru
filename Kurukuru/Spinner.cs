@@ -133,20 +133,30 @@ namespace Kurukuru
             {
                 lock (Console.Out)
                 {
-                    var currentLeft = Console.CursorLeft;
-                    var currentTop = Console.CursorTop;
-
-                    ConsoleHelper.ClearCurrentConsoleLine(_lineLength, _enabled ? _cursorTop : currentTop);
-                    ConsoleHelper.WriteWithColor(frame, Color ?? Console.ForegroundColor);
-                    Console.Write(" ");
-                    Console.Write(Text);
-                    _lineLength = Console.CursorLeft; // get line length before write terminator
-                    Console.Write(terminator);
-                    Console.Out.Flush();
-
                     if (_enabled)
                     {
+                        var currentLeft = Console.CursorLeft;
+                        var currentTop = Console.CursorTop;
+
+                        ConsoleHelper.ClearCurrentConsoleLine(_lineLength, _enabled ? _cursorTop : currentTop);
+                        ConsoleHelper.WriteWithColor(frame, Color ?? Console.ForegroundColor);
+                        Console.Write(" ");
+                        Console.Write(Text);
+                        _lineLength = Console.CursorLeft; // get line length before write terminator
+                        Console.Write(terminator);
+                        Console.Out.Flush();
+
                         Console.SetCursorPosition(currentLeft, currentTop);
+                    }
+                    else
+                    {
+
+                        ConsoleHelper.WriteWithColor(frame, Color ?? Console.ForegroundColor);
+                        Console.Write(" ");
+                        Console.Write(Text);
+                        _lineLength = frame.Length + 1 + Text.Length;
+                        Console.Write(terminator);
+                        Console.Out.Flush();
                     }
                 }
             }
