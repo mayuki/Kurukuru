@@ -19,7 +19,7 @@ jobs:
 
     - uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: '5.0.x'
+        dotnet-version: '8.0.x'
 
     - name: "dotnet build & pack"
       run: |
