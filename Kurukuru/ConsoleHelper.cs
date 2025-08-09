@@ -1,5 +1,4 @@
 using System;
-using System.Runtime.InteropServices;
 
 namespace Kurukuru
 {
@@ -46,23 +45,32 @@ namespace Kurukuru
             Console.ForegroundColor = foregroundColor;
         }
 
-        // See: https://stackoverflow.com/questions/8946808/can-console-clear-be-used-to-only-clear-a-line-instead-of-whole-console/8946847#8946847
-        public static void ClearCurrentConsoleLine(int length, int top)
+        public static void RewriteConsoleLine(int length, int top, Action writeAction)
         {
-            if (Console.IsOutputRedirected) return;
+            if (Console.IsOutputRedirected)
+            {
+                writeAction();
+                return;
+            }
 
+            Console.SetCursorPosition(0, top);
             if (CanAcceptEscapeSequence)
             {
-                Console.SetCursorPosition(0, top);
-                Console.Write("\u001B[2K");
+                writeAction();
+                Console.Write("\u001B[0K");
             }
             else
             {
-                Console.SetCursorPosition(0, top);
-                Console.Write(new string(' ', length));
-                Console.SetCursorPosition(0, top);
+                writeAction();
+
+                // See: https://stackoverflow.com/questions/8946808/can-console-clear-be-used-to-only-clear-a-line-instead-of-whole-console/8946847#8946847
+                var currentLeft = Console.CursorLeft;
+                if (length > currentLeft)
+                {
+                    Console.Write(new string(' ', length - currentLeft));
+                }
+                Console.SetCursorPosition(currentLeft, top);
             }
-            Console.Out.Flush();
         }
 
         public static void SetCursorVisibility(bool visible)
