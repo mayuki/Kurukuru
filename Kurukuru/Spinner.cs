@@ -126,8 +126,17 @@ namespace Kurukuru
 
         private void Render(string terminator)
         {
-            var pattern = CurrentPattern;
-            var frame = pattern.Frames[_frameIndex++ % pattern.Frames.Length];
+            int RenderBody()
+            {
+                var pattern = CurrentPattern;
+                var frame = pattern.Frames[_frameIndex++ % pattern.Frames.Length];
+
+                ConsoleHelper.WriteWithColor(frame, Color ?? Console.ForegroundColor);
+                Console.Write(' ');
+                Console.Write(Text);
+
+                return frame.Length + 1 + Text.Length;
+            }
 
             lock (s_consoleLock)
             {
@@ -138,11 +147,11 @@ namespace Kurukuru
                         var currentLeft = Console.CursorLeft;
                         var currentTop = Console.CursorTop;
 
-                        ConsoleHelper.ClearCurrentConsoleLine(_lineLength, _enabled ? _cursorTop : currentTop);
-                        ConsoleHelper.WriteWithColor(frame, Color ?? Console.ForegroundColor);
-                        Console.Write(" ");
-                        Console.Write(Text);
-                        _lineLength = Console.CursorLeft; // get line length before write terminator
+                        ConsoleHelper.RewriteConsoleLine(_lineLength, _enabled ? _cursorTop : currentTop, () =>
+                        {
+                            RenderBody();
+                            _lineLength = Console.CursorLeft; // get line length before write terminator
+                        });
                         Console.Write(terminator);
                         Console.Out.Flush();
 
@@ -150,11 +159,8 @@ namespace Kurukuru
                     }
                     else
                     {
-
-                        ConsoleHelper.WriteWithColor(frame, Color ?? Console.ForegroundColor);
-                        Console.Write(" ");
-                        Console.Write(Text);
-                        _lineLength = frame.Length + 1 + Text.Length;
+                        var length = RenderBody();
+                        _lineLength = length;
                         Console.Write(terminator);
                         Console.Out.Flush();
                     }
