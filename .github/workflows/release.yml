@@ -10,7 +10,7 @@ jobs:
     if: "contains(github.ref, 'refs/tags')"
 
     # To build `net45` target, we need to run the build on Windows.
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     env:
       DOTNET_NOLOGO: true
     
@@ -34,7 +34,7 @@ jobs:
       run: |
         dotnet restore
         dotnet build -c Release
-        dotnet pack -c Release -o $env:GITHUB_WORKSPACE/artifacts -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg
+        dotnet pack -c Release -o ./artifacts -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg
 
     - uses: actions/upload-artifact@master
       with:
@@ -43,4 +43,4 @@ jobs:
 
     - name: "Push to NuGet.org"
       run: |
-        dotnet nuget push "$env:GITHUB_WORKSPACE\artifacts\*.nupkg" --skip-duplicate -k ${{ steps.op-load-secret.outputs.NUGET_AUTH_TOKEN }} -s https://api.nuget.org/v3/index.json
+        dotnet nuget push ./artifacts/*.nupkg --skip-duplicate -k ${{ steps.op-load-secret.outputs.NUGET_AUTH_TOKEN }} -s https://api.nuget.org/v3/index.json

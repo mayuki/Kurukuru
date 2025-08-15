@@ -12,7 +12,7 @@ on:
 jobs:
   Build:
     # To build `net45` target, we need to run the build on Windows.
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     env:
       DOTNET_NOLOGO: true
     steps:
@@ -26,11 +26,11 @@ jobs:
     - run: dotnet build -c Release
 
     # Run Unit tests
-    #- run: dotnet test -c Release --no-build --logger trx --results-directory $GITHUB_WORKSPACE/artifacts
+    #- run: dotnet test -c Release --no-build --logger trx --results-directory ./artifacts
 
     # Packaging
     - name: dotnet pack Kurukuru
-      run: dotnet pack -c Release --no-build -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --output $env:GITHUB_WORKSPACE/artifacts ./Kurukuru/Kurukuru.csproj
+      run: dotnet pack -c Release --no-build -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg --output ./artifacts ./Kurukuru/Kurukuru.csproj
 
     # Upload & Publish
     - uses: actions/upload-artifact@master
