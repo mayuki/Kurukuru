@@ -16,7 +16,16 @@ jobs:
     
     steps:
     - uses: actions/checkout@v1
-
+    
+    # Load secrets from 1Password
+    - uses: 1password/load-secrets-action@v2
+      id: op-load-secret
+      with:
+        export-env: false
+      env:
+        OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN_PUBLIC }}
+        NUGET_AUTH_TOKEN: "op://GitHub Actions - Public/NuGet - Mayuki-Default/credential"
+        
     - uses: actions/setup-dotnet@v1
       with:
         dotnet-version: '8.0.x'
@@ -34,4 +43,4 @@ jobs:
 
     - name: "Push to NuGet.org"
       run: |
-        dotnet nuget push "$env:GITHUB_WORKSPACE\artifacts\*.nupkg" --skip-duplicate -k ${{ secrets.NUGET_KEY }} -s https://api.nuget.org/v3/index.json
+        dotnet nuget push "$env:GITHUB_WORKSPACE\artifacts\*.nupkg" --skip-duplicate -k ${{ steps.op-load-secret.outputs.NUGET_AUTH_TOKEN }} -s https://api.nuget.org/v3/index.json
